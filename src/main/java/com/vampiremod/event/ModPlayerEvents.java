@@ -6,10 +6,12 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.food.FoodData;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.event.entity.living.LivingDeathEvent;
+import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
@@ -17,6 +19,7 @@ import java.util.UUID;
 
 @Mod.EventBusSubscriber
 public class ModPlayerEvents {
+    private static final String SUN_TICK_KEY = "vampiremod.sunburn";
     private static final UUID VAMPIRE_SPEED_ID = UUID.fromString("6a6b75b0-6f9b-4f74-9e5e-5fb1648c3e32");
     private static final AttributeModifier VAMPIRE_SPEED =
             new AttributeModifier(VAMPIRE_SPEED_ID, "Vampire speed bonus", 0.08D, AttributeModifier.Operation.ADDITION);
@@ -115,9 +118,30 @@ public class ModPlayerEvents {
         var helmet = player.getInventory().getArmor(3);
         boolean hasHelmet = !helmet.isEmpty();
         if (!hasHelmet) {
+            // Mark sun exposure and let vanilla fire tick handle the damage cadence.
+            player.getPersistentData().putLong(SUN_TICK_KEY, player.level().getGameTime());
             player.setSecondsOnFire(8);
         } else if (player.tickCount % 40 == 0) {
             helmet.hurtAndBreak(1, player, p -> p.broadcastBreakEvent(net.minecraft.world.entity.EquipmentSlot.HEAD));
+        }
+    }
+
+    @SubscribeEvent
+    public static void onDeath(LivingDeathEvent event) {
+        if (!(event.getEntity() instanceof Player player)) return;
+        boolean vamp = player.getCapability(ModCapabilities.VAMPIRE_CAP).map(c -> c.isVampire()).orElse(false);
+        if (!vamp) return;
+
+        DamageSource source = event.getSource();
+        long lastSun = player.getPersistentData().getLong(SUN_TICK_KEY);
+        boolean recentSun = player.level().getGameTime() - lastSun <= 60;
+        boolean sun = recentSun && source.is(net.minecraft.tags.DamageTypeTags.IS_FIRE) && player.level().isDay() && player.isOnFire();
+        boolean woodenSword = source.getDirectEntity() instanceof Player attacker &&
+                attacker.getMainHandItem().is(Items.WOODEN_SWORD);
+
+        if (!sun && !woodenSword) {
+            event.setCanceled(true);
+            player.setHealth(1.0F);
         }
     }
 }
