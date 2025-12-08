@@ -1,0 +1,10 @@
+{
+  "replace": false,
+
+  "_comment": " Biomes where the cave can spawn",
+  "values": [
+    "minecraft:jagged_peaks",
+    "minecraft:frozen_peaks",
+    "minecraft:stony_peaks"
+  ]
+}
