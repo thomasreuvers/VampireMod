@@ -19,6 +19,7 @@ import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.monster.AbstractIllager;
+import net.minecraft.world.entity.ambient.Bat;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -147,6 +148,23 @@ public class VampireEntity extends AbstractIllager {
                 this.setSecondsOnFire(8);
             }
         }
+    }
+
+    public void disperseIntoBats() {
+        if (this.level().isClientSide || this.isRemoved()) return;
+
+        for (int i = 0; i < 3; i++) {
+            Bat bat = EntityType.BAT.create(this.level());
+            if (bat != null) {
+                double dx = this.getX() + (this.random.nextDouble() - 0.5D) * 0.8D;
+                double dy = this.getY() + 0.5D + this.random.nextDouble() * 0.5D;
+                double dz = this.getZ() + (this.random.nextDouble() - 0.5D) * 0.8D;
+                bat.moveTo(dx, dy, dz, this.random.nextFloat() * 360.0F, 0.0F);
+                bat.setDeltaMovement(this.random.triangle(0.0D, 0.2D), this.random.triangle(0.2D, 0.2D), this.random.triangle(0.0D, 0.2D));
+                this.level().addFreshEntity(bat);
+            }
+        }
+        this.discard();
     }
 
     private boolean canDieFrom(DamageSource source) {

@@ -19,12 +19,12 @@ public class VampireOfferScreen extends Screen {
         int centerX = this.width / 2;
         int centerY = this.height / 2;
         addRenderableWidget(Button.builder(Component.literal("Accept"), btn -> {
-            ModNetworking.CHANNEL.sendToServer(new RespondVampireBitePacket(true));
+            ModNetworking.CHANNEL.sendToServer(new RespondVampireBitePacket(vampireEntityId, true));
             onClose();
         }).bounds(centerX - 80, centerY, 70, 20).build());
 
         addRenderableWidget(Button.builder(Component.literal("Decline"), btn -> {
-            ModNetworking.CHANNEL.sendToServer(new RespondVampireBitePacket(false));
+            ModNetworking.CHANNEL.sendToServer(new RespondVampireBitePacket(vampireEntityId, false));
             onClose();
         }).bounds(centerX + 10, centerY, 70, 20).build());
     }

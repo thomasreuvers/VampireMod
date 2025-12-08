@@ -10,6 +10,7 @@ import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.network.PacketDistributor;
 
 public class ModCapabilities {
 
@@ -37,5 +38,14 @@ public class ModCapabilities {
         copy.ifPresent(newCap -> original.ifPresent(newCap::copyFrom));
 
         event.getOriginal().invalidateCaps();
+    }
+
+    public static void sync(Player player) {
+        if (player instanceof net.minecraft.server.level.ServerPlayer serverPlayer) {
+            player.getCapability(VAMPIRE_CAP).ifPresent(cap -> {
+                var packet = new com.vampiremod.network.VampireDataSyncPacket(cap.isVampire(), cap.getBlood());
+                com.vampiremod.network.ModNetworking.CHANNEL.send(PacketDistributor.PLAYER.with(() -> serverPlayer), packet);
+            });
+        }
     }
 }

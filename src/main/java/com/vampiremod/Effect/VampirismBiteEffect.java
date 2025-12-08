@@ -16,10 +16,11 @@ public class VampirismBiteEffect extends MobEffect {
 
     @Override
     public void applyEffectTick(LivingEntity entity, int amplifier) {
-        if (entity instanceof Player player) {
+        if (entity instanceof Player player && !player.level().isClientSide) {
             var inst = player.getEffect(ModEffects.VAMPIRISM_BITE.get());
             if (inst != null && inst.getDuration() <= 1) {
                 PlayerVampireData.get(player).setVampire(true);
+                com.vampiremod.Capability.ModCapabilities.sync(player);
             }
         }
     }

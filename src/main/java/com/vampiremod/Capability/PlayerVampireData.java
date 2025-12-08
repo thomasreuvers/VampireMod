@@ -12,7 +12,7 @@ public class PlayerVampireData implements INBTSerializable<CompoundTag> {
     public void setVampire(boolean v) { vampire = v; }
 
     public float getBlood() { return blood; }
-    public void setBlood(float b) { blood = b; }
+    public void setBlood(float b) { blood = Math.max(0, Math.min(20, b)); }
 
     public void copyFrom(PlayerVampireData other) {
         this.vampire = other.vampire;

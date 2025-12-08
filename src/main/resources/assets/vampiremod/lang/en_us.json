@@ -1,0 +1,4 @@
+{
+  "effect.vampiremod.vampirism_bite": "Vampirism",
+  "commands.vampire.set": "Set vampire state for %s to %s"
+}

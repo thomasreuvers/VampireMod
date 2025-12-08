@@ -25,5 +25,7 @@ public class ModNetworking {
                 OfferVampireBitePacket::encode, OfferVampireBitePacket::decode, OfferVampireBitePacket::handle);
         CHANNEL.registerMessage(nextId(), RespondVampireBitePacket.class,
                 RespondVampireBitePacket::encode, RespondVampireBitePacket::decode, RespondVampireBitePacket::handle);
+        CHANNEL.registerMessage(nextId(), VampireDataSyncPacket.class,
+                VampireDataSyncPacket::encode, VampireDataSyncPacket::decode, VampireDataSyncPacket::handle);
     }
 }
