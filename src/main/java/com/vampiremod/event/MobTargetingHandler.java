@@ -11,6 +11,7 @@ import net.minecraftforge.fml.common.Mod;
 
 @Mod.EventBusSubscriber
 public class MobTargetingHandler {
+    // Keep monsters neutral to vampires unless they recently hurt the mob; golems stay hostile.
     @SubscribeEvent
     public static void onChangeTarget(LivingChangeTargetEvent event) {
         if (!(event.getEntity() instanceof Monster monster) || event.getEntity() instanceof IronGolem) {
@@ -18,10 +19,15 @@ public class MobTargetingHandler {
         }
         if (event.getNewTarget() instanceof Player player) {
             boolean isVampire = player.getCapability(ModCapabilities.VAMPIRE_CAP).map(PlayerVampireData::isVampire).orElse(false);
-            // Stay neutral unless the vampire attacked this monster.
-            if (isVampire && monster.getLastHurtByMob() != player && monster.getLastHurtByMobTimestamp() + 100 < monster.tickCount) {
+            if (isVampire && !recentlyHurtBy(monster, player)) {
                 event.setNewTarget(null);
             }
         }
+    }
+
+    private static boolean recentlyHurtBy(Monster monster, Player player) {
+        if (monster.getLastHurtByMob() != player) return false;
+        int elapsed = monster.tickCount - monster.getLastHurtByMobTimestamp();
+        return elapsed <= 200; // 10 seconds grace window
     }
 }
