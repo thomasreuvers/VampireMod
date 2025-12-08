@@ -16,15 +16,21 @@ public class ModCapabilities {
 
     public static final Capability<PlayerVampireData> VAMPIRE_CAP =
             CapabilityManager.get(new CapabilityToken<>() {});
+    public static final Capability<BloodData> BLOOD_CAP =
+            CapabilityManager.get(new CapabilityToken<>() {});
 
     public static void register(RegisterCapabilitiesEvent event) {
         event.register(PlayerVampireData.class);
+        event.register(BloodData.class);
     }
 
     @SubscribeEvent
     public static void attachCapabilities(AttachCapabilitiesEvent<Entity> event) {
         if (event.getObject() instanceof Player) {
             event.addCapability(PlayerVampireProvider.ID, new PlayerVampireProvider());
+        }
+        if (event.getObject() instanceof net.minecraft.world.entity.LivingEntity living) {
+            event.addCapability(BloodProvider.ID, new BloodProvider());
         }
     }
 

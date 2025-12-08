@@ -24,5 +24,12 @@
     "sounds": [
       { "name": "minecraft:block/stone/step" }
     ]
+  },
+  "entity.vampire.drink": {
+    "sounds": [
+      "vampiremod:vampire_drink1",
+      "vampiremod:vampire_drink2",
+      "vampiremod:vampire_drink3"
+    ]
   }
 }
