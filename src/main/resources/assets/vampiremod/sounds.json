@@ -1,0 +1,28 @@
+{
+  "entity.vampire.ambient": {
+    "sounds": [
+      "vampiremod:vampire_idle1",
+      "vampiremod:vampire_idle2",
+      "vampiremod:vampire_idle3",
+      "vampiremod:vampire_idle4"
+    ]
+  },
+  "entity.vampire.hurt": {
+    "sounds": [
+      "vampiremod:vampire_hurt1",
+      "vampiremod:vampire_hurt2",
+      "vampiremod:vampire_hurt3"
+    ]
+  },
+  "entity.vampire.death": {
+    "sounds": [
+      "vampiremod:vampire_death1",
+      "vampiremod:vampire_death2"
+    ]
+  },
+  "entity.vampire.step": {
+    "sounds": [
+      { "name": "minecraft:block/stone/step" }
+    ]
+  }
+}
