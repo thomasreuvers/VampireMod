@@ -1,4 +1,4 @@
-package com.vampiremod.Entity;
+package com.vampiremod.entity;
 
 import com.vampiremod.VampireMod;
 import net.minecraft.world.entity.MobCategory;

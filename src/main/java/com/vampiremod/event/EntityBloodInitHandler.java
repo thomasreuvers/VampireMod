@@ -1,6 +1,6 @@
 package com.vampiremod.event;
 
-import com.vampiremod.Capability.ModCapabilities;
+import com.vampiremod.capability.ModCapabilities;
 import com.vampiremod.config.VampireConfig;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;

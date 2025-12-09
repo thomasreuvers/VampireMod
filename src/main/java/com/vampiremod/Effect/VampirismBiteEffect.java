@@ -1,6 +1,7 @@
-package com.vampiremod.Effect;
+package com.vampiremod.effect;
 
-import com.vampiremod.Capability.PlayerVampireData;
+import com.vampiremod.capability.ModCapabilities;
+import com.vampiremod.capability.PlayerVampireData;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.entity.LivingEntity;
@@ -20,7 +21,7 @@ public class VampirismBiteEffect extends MobEffect {
             var inst = player.getEffect(ModEffects.VAMPIRISM_BITE.get());
             if (inst != null && inst.getDuration() <= 1) {
                 PlayerVampireData.get(player).setVampire(true);
-                com.vampiremod.Capability.ModCapabilities.sync(player);
+                ModCapabilities.sync(player);
             }
         }
     }

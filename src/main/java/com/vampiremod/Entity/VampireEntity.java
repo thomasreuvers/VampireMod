@@ -1,6 +1,6 @@
-package com.vampiremod.Entity;
+package com.vampiremod.entity;
 
-import com.vampiremod.Sound.ModSounds;
+import com.vampiremod.sound.ModSounds;
 import com.vampiremod.network.ModNetworking;
 import com.vampiremod.network.OfferVampireBitePacket;
 import net.minecraft.core.BlockPos;
@@ -187,7 +187,7 @@ public class VampireEntity extends AbstractIllager {
     // AbstractIllager requires this:
     @Override
     public AbstractIllager.IllagerArmPose getArmPose() {
-        // Simple for now – you can customize later
+        // Simple for now; can be customized later.
         return this.isAggressive() && !offeringBite
                 ? AbstractIllager.IllagerArmPose.ATTACKING
                 : AbstractIllager.IllagerArmPose.CROSSED;

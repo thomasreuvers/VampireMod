@@ -1,9 +1,9 @@
 package com.vampiremod;
 
-import com.vampiremod.Capability.ModCapabilities;
-import com.vampiremod.Effect.ModEffects;
-import com.vampiremod.Entity.ModEntities;
-import com.vampiremod.Sound.ModSounds;
+import com.vampiremod.capability.ModCapabilities;
+import com.vampiremod.effect.ModEffects;
+import com.vampiremod.entity.ModEntities;
+import com.vampiremod.sound.ModSounds;
 import com.vampiremod.network.ModNetworking;
 import net.minecraft.world.entity.Entity;
 import net.minecraftforge.common.MinecraftForge;

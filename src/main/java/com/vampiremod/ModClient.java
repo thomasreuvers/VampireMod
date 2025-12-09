@@ -1,7 +1,7 @@
 package com.vampiremod;
 
-import com.vampiremod.Entity.ModEntities;
-import com.vampiremod.Entity.client.VampireRenderer;
+import com.vampiremod.entity.ModEntities;
+import com.vampiremod.entity.client.VampireRenderer;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;

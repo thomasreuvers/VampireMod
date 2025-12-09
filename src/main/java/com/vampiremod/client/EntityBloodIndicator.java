@@ -1,7 +1,7 @@
 package com.vampiremod.client;
 
-import com.vampiremod.Capability.ModCapabilities;
-import com.vampiremod.Capability.PlayerVampireData;
+import com.vampiremod.capability.ModCapabilities;
+import com.vampiremod.capability.PlayerVampireData;
 import com.vampiremod.VampireMod;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;

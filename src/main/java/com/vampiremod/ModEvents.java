@@ -1,6 +1,6 @@
 package com.vampiremod;
 
-import com.vampiremod.Entity.ModEntities;
+import com.vampiremod.entity.ModEntities;
 import net.minecraft.world.entity.monster.Vindicator;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;

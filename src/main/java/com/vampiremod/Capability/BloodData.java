@@ -1,4 +1,4 @@
-package com.vampiremod.Capability;
+package com.vampiremod.capability;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraftforge.common.util.INBTSerializable;

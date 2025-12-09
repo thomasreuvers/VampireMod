@@ -1,6 +1,6 @@
 package com.vampiremod.network;
 
-import com.vampiremod.Capability.ModCapabilities;
+import com.vampiremod.capability.ModCapabilities;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.api.distmarker.Dist;

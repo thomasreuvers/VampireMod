@@ -1,7 +1,7 @@
 package com.vampiremod.command;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
-import com.vampiremod.Capability.ModCapabilities;
+import com.vampiremod.capability.ModCapabilities;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
@@ -32,7 +32,7 @@ public class VampireCommands {
 
     private static int setVampire(CommandSourceStack source, Player target, boolean value) {
         target.getCapability(ModCapabilities.VAMPIRE_CAP).ifPresent(cap -> cap.setVampire(value));
-        com.vampiremod.Capability.ModCapabilities.sync(target);
+        ModCapabilities.sync(target);
         source.sendSuccess(() -> Component.literal(
                 target.getName().getString() + " vampire state set to " + value), true);
         return 1;
@@ -44,7 +44,7 @@ public class VampireCommands {
             cap.setVampire(!cap.isVampire());
             result[0] = cap.isVampire();
         });
-        com.vampiremod.Capability.ModCapabilities.sync(target);
+        ModCapabilities.sync(target);
         source.sendSuccess(() -> Component.literal(
                 target.getName().getString() + " vampire state set to " + result[0]), true);
         return 1;

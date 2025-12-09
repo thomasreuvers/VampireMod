@@ -1,4 +1,4 @@
-package com.vampiremod.Effect;
+package com.vampiremod.effect;
 
 import com.vampiremod.VampireMod;
 import net.minecraft.world.effect.MobEffect;
@@ -14,6 +14,12 @@ public class ModEffects {
 
     public static final RegistryObject<MobEffect> VAMPIRISM_BITE =
             EFFECTS.register("vampirism_bite", VampirismBiteEffect::new);
+
+    public static final RegistryObject<MobEffect> SUNBURN =
+            EFFECTS.register("sunburn", SunburnEffect::new);
+
+    public static final RegistryObject<MobEffect> VAMPIRIC_WEAKNESS =
+            EFFECTS.register("vampiric_weakness", VampiricWeaknessEffect::new);
 
     public static void register(IEventBus eventBus) {
         EFFECTS.register(eventBus);

@@ -1,4 +1,4 @@
-package com.vampiremod.Capability;
+package com.vampiremod.capability;
 
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;

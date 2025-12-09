@@ -1,4 +1,4 @@
-package com.vampiremod.Capability;
+package com.vampiremod.capability;
 
 import com.vampiremod.VampireMod;
 import net.minecraft.core.Direction;

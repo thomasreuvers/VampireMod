@@ -32,13 +32,15 @@ public class VampireConfig {
                 "minecraft:ghast",
                 "minecraft:piglin", "minecraft:piglin_brute", "minecraft:zombified_piglin",
                 "minecraft:blaze",
-                "minecraft:iron_golem", "minecraft:snow_golem",
+                "minecraft:iron_golem", "minecraft:snow_golem", "minecraft:villager_golem",
                 "minecraft:shulker",
                 "minecraft:silverfish",
                 "minecraft:slime", "minecraft:magma_cube",
                 "minecraft:phantom",
                 "minecraft:ender_dragon", "minecraft:wither", "minecraft:elder_guardian",
-                "minecraft:skeleton_horse", "minecraft:zombie_horse"
+                "minecraft:skeleton_horse", "minecraft:zombie_horse",
+                "minecraft:bat",
+                "vampiremod:vampire",
         };
         for (String id : blacklist) {
             BLACKLIST.add(new ResourceLocation(id));

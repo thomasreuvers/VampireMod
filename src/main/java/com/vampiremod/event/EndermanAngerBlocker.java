@@ -1,7 +1,7 @@
 package com.vampiremod.event;
 
-import com.vampiremod.Capability.ModCapabilities;
-import com.vampiremod.Capability.PlayerVampireData;
+import com.vampiremod.capability.ModCapabilities;
+import com.vampiremod.capability.PlayerVampireData;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.event.entity.living.EnderManAngerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;

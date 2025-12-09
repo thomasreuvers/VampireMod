@@ -1,9 +1,9 @@
 package com.vampiremod.network;
 
-import com.vampiremod.Capability.ModCapabilities;
-import com.vampiremod.Capability.PlayerVampireData;
-import com.vampiremod.Effect.ModEffects;
-import com.vampiremod.Entity.VampireEntity;
+import com.vampiremod.capability.ModCapabilities;
+import com.vampiremod.capability.PlayerVampireData;
+import com.vampiremod.effect.ModEffects;
+import com.vampiremod.entity.VampireEntity;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;

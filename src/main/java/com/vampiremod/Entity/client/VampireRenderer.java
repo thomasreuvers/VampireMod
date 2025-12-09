@@ -1,6 +1,6 @@
-package com.vampiremod.Entity.client;
+package com.vampiremod.entity.client;
 
-import com.vampiremod.Entity.VampireEntity;
+import com.vampiremod.entity.VampireEntity;
 import net.minecraft.client.model.IllagerModel;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;

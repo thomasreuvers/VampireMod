@@ -1,17 +1,19 @@
 package com.vampiremod.event;
 
-import com.vampiremod.Capability.ModCapabilities;
+import com.vampiremod.capability.ModCapabilities;
+import com.vampiremod.capability.PlayerVampireData;
+import com.vampiremod.effect.ModEffects;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
-import net.minecraftforge.event.entity.living.LivingHurtEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
@@ -19,7 +21,11 @@ import java.util.UUID;
 
 @Mod.EventBusSubscriber
 public class ModPlayerEvents {
-    private static final String SUN_TICK_KEY = "vampiremod.sunburn";
+    public static final String SUN_TICK_KEY = "vampiremod.sunburn";
+    public static final String SUN_EXPOSURE_KEY = "vampiremod.sun_exposure";
+    private static final int SUN_EXPOSURE_THRESHOLD = 200;
+    private static final int SUN_EXPOSURE_CAP = 400;
+    private static final int HELMET_DAMAGE_INTERVAL = 40;
     private static final UUID VAMPIRE_SPEED_ID = UUID.fromString("6a6b75b0-6f9b-4f74-9e5e-5fb1648c3e32");
     private static final AttributeModifier VAMPIRE_SPEED =
             new AttributeModifier(VAMPIRE_SPEED_ID, "Vampire speed bonus", 0.08D, AttributeModifier.Operation.ADDITION);
@@ -60,22 +66,26 @@ public class ModPlayerEvents {
         if (attr == null) return;
 
         boolean has = attr.hasModifier(VAMPIRE_SPEED);
-        if (vamp && !has) {
-            attr.addTransientModifier(VAMPIRE_SPEED);
-        } else if (!vamp && has) {
-            attr.removeModifier(VAMPIRE_SPEED);
+        if (vamp) {
+            if (!has) {
+                attr.addTransientModifier(VAMPIRE_SPEED);
+            }
+        } else {
+            if (has) {
+                attr.removeModifier(VAMPIRE_SPEED);
+            }
+            clearSunburn(player);
         }
     }
 
-    private static void applyBuffs(Player player, com.vampiremod.Capability.PlayerVampireData cap) {
+    private static void applyBuffs(Player player, PlayerVampireData cap) {
         if (cap.getBlood() <= 0f) {
             clearBuffs(player);
-            ensureEffect(player, MobEffects.MOVEMENT_SLOWDOWN, 60, 1);
-            ensureEffect(player, MobEffects.WEAKNESS, 60, 0);
+            ensureEffect(player, ModEffects.VAMPIRIC_WEAKNESS.get(), 60, 0, false, false, true);
             return;
         }
-        player.removeEffect(MobEffects.MOVEMENT_SLOWDOWN);
-        player.removeEffect(MobEffects.WEAKNESS);
+        player.removeEffect(ModEffects.VAMPIRIC_WEAKNESS.get());
+
         // Strength I
         ensureEffect(player, MobEffects.DAMAGE_BOOST, 220, 0);
         // Jump boost for higher jumps (roughly ~1.5 blocks)
@@ -87,14 +97,23 @@ public class ModPlayerEvents {
         player.removeEffect(MobEffects.JUMP);
     }
 
-    private static void ensureEffect(Player player, net.minecraft.world.effect.MobEffect effect, int duration, int amplifier) {
+    private static void clearSunburn(Player player) {
+        player.getPersistentData().putInt(SUN_EXPOSURE_KEY, 0);
+        player.removeEffect(ModEffects.SUNBURN.get());
+    }
+
+    private static void ensureEffect(Player player, MobEffect effect, int duration, int amplifier) {
+        ensureEffect(player, effect, duration, amplifier, true, false, false);
+    }
+
+    private static void ensureEffect(Player player, MobEffect effect, int duration, int amplifier, boolean ambient, boolean showParticles, boolean showIcon) {
         MobEffectInstance inst = player.getEffect(effect);
         if (inst == null || inst.getAmplifier() != amplifier || inst.getDuration() < duration / 2) {
-            player.addEffect(new MobEffectInstance(effect, duration, amplifier, true, false, false));
+            player.addEffect(new MobEffectInstance(effect, duration, amplifier, ambient, showParticles, showIcon));
         }
     }
 
-    private static void regenFromBlood(Player player, com.vampiremod.Capability.PlayerVampireData cap) {
+    private static void regenFromBlood(Player player, PlayerVampireData cap) {
         if (player.tickCount % 40 != 0) return; // every 2 seconds
         if (player.getHealth() >= player.getMaxHealth()) return;
         if (cap.getBlood() < 1f) return;
@@ -105,24 +124,45 @@ public class ModPlayerEvents {
     }
 
     private static void burnInSunlight(Player player) {
-        if (player.isSpectator() || player.isCreative()) return;
+        if (player.isSpectator() || player.isCreative()) {
+            clearSunburn(player);
+            return;
+        }
         var level = player.level();
-        if (!level.isDay()) return;
+        if (!level.isDay()) {
+            clearSunburn(player);
+            return;
+        }
 
         float brightness = player.getLightLevelDependentMagicValue();
-        if (brightness <= 0.5F) return;
+        if (brightness <= 0.5F) {
+            clearSunburn(player);
+            return;
+        }
 
         var pos = player.blockPosition();
-        if (!level.canSeeSky(pos)) return;
+        if (!level.canSeeSky(pos)) {
+            clearSunburn(player);
+            return;
+        }
 
         var helmet = player.getInventory().getArmor(3);
-        boolean hasHelmet = !helmet.isEmpty();
-        if (!hasHelmet) {
-            // Mark sun exposure and let vanilla fire tick handle the damage cadence.
+        if (!helmet.isEmpty()) {
+            if (player.tickCount % HELMET_DAMAGE_INTERVAL == 0) {
+                helmet.hurtAndBreak(1, player, p -> p.broadcastBreakEvent(net.minecraft.world.entity.EquipmentSlot.HEAD));
+            }
+            clearSunburn(player);
+            return;
+        }
+
+        int exposure = Math.min(SUN_EXPOSURE_CAP, player.getPersistentData().getInt(SUN_EXPOSURE_KEY) + 1);
+        player.getPersistentData().putInt(SUN_EXPOSURE_KEY, exposure);
+
+        if (exposure >= SUN_EXPOSURE_THRESHOLD) { // 10 seconds grace, then periodic burn/debuff maintenance
             player.getPersistentData().putLong(SUN_TICK_KEY, player.level().getGameTime());
-            player.setSecondsOnFire(8);
-        } else if (player.tickCount % 40 == 0) {
-            helmet.hurtAndBreak(1, player, p -> p.broadcastBreakEvent(net.minecraft.world.entity.EquipmentSlot.HEAD));
+            ensureEffect(player, ModEffects.SUNBURN.get(), 60, 0, false, false, true);
+        } else {
+            player.removeEffect(ModEffects.SUNBURN.get());
         }
     }
 

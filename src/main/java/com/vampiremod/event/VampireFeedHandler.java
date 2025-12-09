@@ -1,8 +1,8 @@
 package com.vampiremod.event;
 
-import com.vampiremod.Capability.BloodData;
-import com.vampiremod.Capability.ModCapabilities;
-import com.vampiremod.Capability.PlayerVampireData;
+import com.vampiremod.capability.BloodData;
+import com.vampiremod.capability.ModCapabilities;
+import com.vampiremod.capability.PlayerVampireData;
 import com.vampiremod.network.EntityBloodSyncPacket;
 import com.vampiremod.network.ModNetworking;
 import net.minecraft.server.level.ServerPlayer;
@@ -52,7 +52,7 @@ public class VampireFeedHandler {
 
         // Play drinking sound for the player
         if (event.getEntity() instanceof ServerPlayer sp) {
-            sp.level().playSound(null, sp.blockPosition(), com.vampiremod.Sound.ModSounds.VAMPIRE_DRINK.get(), net.minecraft.sounds.SoundSource.PLAYERS, 1.0F, 1.0F);
+            sp.level().playSound(null, sp.blockPosition(), com.vampiremod.sound.ModSounds.VAMPIRE_DRINK.get(), net.minecraft.sounds.SoundSource.PLAYERS, 1.0F, 1.0F);
         }
 
         // Sync to player HUD and to tracking clients for entity blood

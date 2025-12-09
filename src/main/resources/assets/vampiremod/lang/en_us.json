@@ -1,4 +1,6 @@
 {
   "effect.vampiremod.vampirism_bite": "Vampirism",
+  "effect.vampiremod.sunburn": "Sunburn",
+  "effect.vampiremod.vampiric_weakness": "Vampiric Weakness",
   "commands.vampire.set": "Set vampire state for %s to %s"
 }

@@ -1,6 +1,6 @@
 package com.vampiremod.event;
 
-import com.vampiremod.Capability.ModCapabilities;
+import com.vampiremod.capability.ModCapabilities;
 import com.vampiremod.network.EntityBloodSyncPacket;
 import com.vampiremod.network.ModNetworking;
 import net.minecraft.server.level.ServerPlayer;

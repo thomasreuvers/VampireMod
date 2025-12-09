@@ -1,4 +1,4 @@
-package com.vampiremod.Sound;
+package com.vampiremod.sound;
 
 import com.vampiremod.VampireMod;
 import net.minecraft.resources.ResourceLocation;
@@ -20,13 +20,10 @@ public class ModSounds {
 
     private static RegistryObject<SoundEvent> registerSoundEvent(String name) {
         ResourceLocation location = ResourceLocation.fromNamespaceAndPath(VampireMod.MOD_ID, name);
-        System.out.println("Registering sound: " + location); // DEBUG
-        return SOUND_EVENTS.register(name,
-                () -> SoundEvent.createVariableRangeEvent(location));
+        return SOUND_EVENTS.register(name, () -> SoundEvent.createVariableRangeEvent(location));
     }
 
     public static void register(IEventBus bus) {
         SOUND_EVENTS.register(bus);
-        System.out.println("ModSounds registered!"); // DEBUG
     }
 }
