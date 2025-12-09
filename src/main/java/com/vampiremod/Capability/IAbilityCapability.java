@@ -2,7 +2,6 @@ package com.vampiremod.capability;
 
 import com.vampiremod.ability.AbilityInstance;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.Collection;
@@ -30,8 +29,7 @@ public interface IAbilityCapability {
     boolean spendPoints(int amount);
 
     /** Serialize to NBT */
-    Tag serializeNBT();
+    CompoundTag  serializeNBT();
 
-    /** Deserialize from NBT */
-    void deserializeNBT(Tag nbt);
+    void deserializeNBT(CompoundTag nbt);
 }

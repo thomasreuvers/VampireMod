@@ -10,8 +10,8 @@ import net.minecraft.world.entity.player.Player;
 public class InvisibilityAbility extends AbstractAbility {
     private static final int DURATION = 200; // 10 seconds
 
-    public InvisibilityAbility(ResourceLocation id, int cooldown, int cost) {
-        super(id, cooldown, cost);
+    public InvisibilityAbility(ResourceLocation id) {
+        super(id, DURATION, 0, 2);
     }
 
     @Override

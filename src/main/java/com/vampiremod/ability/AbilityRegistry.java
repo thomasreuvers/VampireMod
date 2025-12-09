@@ -25,7 +25,7 @@ public class AbilityRegistry {
 
     // Register abilities
     public static final RegistryObject<Ability> INVISIBILITY = ABILITIES.register("invisibility",
-            () -> new InvisibilityAbility(new ResourceLocation(VampireMod.MOD_ID, "invisibility"), 200, 3));
+            () -> new InvisibilityAbility(new ResourceLocation(VampireMod.MOD_ID, "invisibility")));
 
     public static void init() {
         // Called during mod initialization

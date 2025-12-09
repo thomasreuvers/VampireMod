@@ -35,6 +35,13 @@ public class AbilityInstance {
             return false;
         }
 
+        // Check and consume blood
+        if (ability instanceof AbstractAbility abstractAbility) {
+            if (!abstractAbility.consumeBlood(player, ability.getBloodCost())) {
+                return false; // Not enough blood
+            }
+        }
+
         boolean success = ability.execute(player, this);
         if (success) {
             cooldownRemaining = ability.getCooldown();

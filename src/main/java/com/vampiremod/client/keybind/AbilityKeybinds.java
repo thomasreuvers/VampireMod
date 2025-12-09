@@ -4,7 +4,9 @@ import com.mojang.blaze3d.platform.InputConstants;
 import com.vampiremod.VampireMod;
 import com.vampiremod.ability.network.AbilityActivatePacket;
 import com.vampiremod.ability.network.NetworkHandler;
+import com.vampiremod.client.gui.RadialAbilityScreen;
 import net.minecraft.client.KeyMapping;
+import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
 import net.minecraftforge.client.settings.KeyConflictContext;
@@ -15,9 +17,9 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 public class AbilityKeybinds {
     public static final String CATEGORY = "key.categories.vampiremod.abilities";
 
-    public static final Lazy<KeyMapping> INVISIBILITY = Lazy.of(() ->
+    public static final Lazy<KeyMapping> ABILITY_WHEEL = Lazy.of(() ->
             new KeyMapping(
-                    "key.vampiremod.invisibility",
+                    "key.vampiremod.ability_whee",
                     KeyConflictContext.IN_GAME,
                     InputConstants.Type.KEYSYM,
                     InputConstants.KEY_R,
@@ -26,16 +28,17 @@ public class AbilityKeybinds {
     );
 
     public static void register(RegisterKeyMappingsEvent event) {
-        event.register(INVISIBILITY.get());
+        event.register(ABILITY_WHEEL.get());
     }
 
     @SubscribeEvent
     public static void onClientTick(TickEvent.ClientTickEvent event) {
         if (event.phase == TickEvent.Phase.END) {
-            while (INVISIBILITY.get().consumeClick()) {
-                NetworkHandler.sendToServer(new AbilityActivatePacket(
-                        new ResourceLocation(VampireMod.MOD_ID, "invisibility")
-                ));
+            Minecraft mc = Minecraft.getInstance();
+
+            // Open radial menu while R is held down
+            if (ABILITY_WHEEL.get().isDown() && mc.screen == null) {
+                mc.setScreen(new RadialAbilityScreen());
             }
         }
     }

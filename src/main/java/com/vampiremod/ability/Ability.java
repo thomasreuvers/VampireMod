@@ -20,6 +20,8 @@ public interface Ability {
     /** Get cooldown in ticks */
     int getCooldown();
 
+    int getBloodCost();
+
     /** Cost in ability points to unlock */
     int getCost();
 
