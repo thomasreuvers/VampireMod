@@ -31,6 +31,12 @@ public class NetworkHandler {
                 .decoder(AbilitySyncPacket::decode)
                 .consumerMainThread(AbilitySyncPacket::handle)
                 .add();
+
+        INSTANCE.messageBuilder(AbilitySelectPacket.class, packetId++)
+                .encoder(AbilitySelectPacket::encode)
+                .decoder(AbilitySelectPacket::decode)
+                .consumerMainThread(AbilitySelectPacket::handle)
+                .add();
     }
 
     public static <MSG> void sendToServer(MSG message) {

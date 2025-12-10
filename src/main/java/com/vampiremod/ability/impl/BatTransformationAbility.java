@@ -97,7 +97,7 @@ public class BatTransformationAbility extends AbstractAbility {
         applyHealthModifier(player);
         applyNightVision(player);
         runEcholocation(player);
-        ModPlayerEvents.spawnSunSizzle(player);
+//        ModPlayerEvents.spawnSunSizzle(player);
 
         // Force swimming pose for bat form to match hitbox
         if (player.getPose() != Pose.SWIMMING) {

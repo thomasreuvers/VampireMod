@@ -13,9 +13,11 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.GameRules;
+import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingHealEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
@@ -34,7 +36,10 @@ public class ModPlayerEvents {
     private static final int HELMET_DAMAGE_INTERVAL = 40;
     private static final UUID VAMPIRE_SPEED_ID = UUID.fromString("6a6b75b0-6f9b-4f74-9e5e-5fb1648c3e32");
     private static final AttributeModifier VAMPIRE_SPEED =
-            new AttributeModifier(VAMPIRE_SPEED_ID, "Vampire speed bonus", 0.08D, AttributeModifier.Operation.ADDITION);
+            new AttributeModifier(VAMPIRE_SPEED_ID, "Vampire speed bonus", 0.05D, AttributeModifier.Operation.ADDITION);
+    private static final UUID VAMPIRE_HEALTH_ID = UUID.fromString("d4b76c5e-5603-4b2e-8b48-5c6a5ae4e1a7");
+    private static final AttributeModifier VAMPIRE_HEALTH =
+            new AttributeModifier(VAMPIRE_HEALTH_ID, "Vampire health bonus", 4.0D, AttributeModifier.Operation.ADDITION);
 
     @SubscribeEvent
     public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
@@ -45,8 +50,9 @@ public class ModPlayerEvents {
         Player player = event.player;
         player.getCapability(ModCapabilities.VAMPIRE_CAP).ifPresent(cap -> {
             boolean vamp = cap.isVampire();
-            handleSpeed(player, vamp);
+            handleAttributes(player, vamp);
             if (vamp) {
+                keepBreathing(player);
                 keepHungerSatisfied(player);
                 burnInSunlight(player);
                 applyBuffs(player, cap);
@@ -59,13 +65,26 @@ public class ModPlayerEvents {
 
     @SubscribeEvent
     public static void onLogin(PlayerEvent.PlayerLoggedInEvent event) {
-        ModCapabilities.sync(event.getEntity());
+        var player = event.getEntity();
+        ModCapabilities.sync(player);
+
+        // Reapply attributes immediately on login
+        player.getCapability(ModCapabilities.VAMPIRE_CAP).ifPresent(cap -> {
+            handleAttributes(player, cap.isVampire());
+        });
     }
 
     @SubscribeEvent
     public static void onRespawn(PlayerEvent.PlayerRespawnEvent event) {
-        ModCapabilities.sync(event.getEntity());
-        event.getEntity().getCapability(ModCapabilities.VAMPIRE_CAP).ifPresent(cap -> cap.setBlood(20));
+        var player = event.getEntity();
+        ModCapabilities.sync(player);
+
+        player.getCapability(ModCapabilities.VAMPIRE_CAP).ifPresent(cap -> {
+            cap.setBlood(20);
+
+            // Reapply attributes immediately on respawn
+            handleAttributes(player, cap.isVampire());
+        });
     }
 
     @SubscribeEvent
@@ -91,18 +110,29 @@ public class ModPlayerEvents {
         }
     }
 
-    private static void handleSpeed(Player player, boolean vamp) {
-        var attr = player.getAttribute(Attributes.MOVEMENT_SPEED);
-        if (attr == null) return;
+    private static void handleAttributes(Player player, boolean vamp) {
+        var speedAttr = player.getAttribute(Attributes.MOVEMENT_SPEED);
+        var healthAttr = player.getAttribute(Attributes.MAX_HEALTH);
+        if (speedAttr == null || healthAttr == null) return;
 
-        boolean has = attr.hasModifier(VAMPIRE_SPEED);
+        boolean hasSpeed = speedAttr.hasModifier(VAMPIRE_SPEED);
+        boolean hasHealth = healthAttr.hasModifier(VAMPIRE_HEALTH);
         if (vamp) {
-            if (!has) {
-                attr.addTransientModifier(VAMPIRE_SPEED);
+            if (!hasSpeed) {
+                speedAttr.addPermanentModifier(VAMPIRE_SPEED);
+            }
+            if (!hasHealth) {
+                healthAttr.addPermanentModifier(VAMPIRE_HEALTH);
             }
         } else {
-            if (has) {
-                attr.removeModifier(VAMPIRE_SPEED);
+            if (hasSpeed) {
+                speedAttr.removeModifier(VAMPIRE_SPEED_ID);
+            }
+            if (hasHealth) {
+                healthAttr.removeModifier(VAMPIRE_HEALTH_ID);
+                if (player.getHealth() > player.getMaxHealth()) {
+                    player.setHealth(player.getMaxHealth());
+                }
             }
             clearSunburn(player);
         }
@@ -138,6 +168,10 @@ public class ModPlayerEvents {
         food.setExhaustion(0.0F);
     }
 
+    private static void keepBreathing(Player player) {
+        player.setAirSupply(player.getMaxAirSupply());
+    }
+
     private static void clearSunburn(Player player) {
         player.getPersistentData().putInt(SUN_EXPOSURE_KEY, 0);
         player.removeEffect(ModEffects.SUNBURN.get());
@@ -155,16 +189,30 @@ public class ModPlayerEvents {
     }
 
     private static void regenFromBlood(Player player, PlayerVampireData cap) {
-        if (player.tickCount % 40 != 0) return; // every 2 seconds
+        if (player.tickCount % 20 != 0) return; // every second
         if (player.getHealth() >= player.getMaxHealth()) return;
-        if (cap.getBlood() < 1f) return;
+        if (cap.getBlood() < 0.5f) return;
 
-        cap.setBlood(cap.getBlood() - 1f); // consume half drop
+        cap.setBlood(cap.getBlood() - 0.5f); // consume half a drop
         // Mark this heal so we don't cancel it in the global heal handler
         player.getPersistentData().putBoolean(BLOOD_HEAL_KEY, true);
         player.heal(1.0F);
         player.getPersistentData().remove(BLOOD_HEAL_KEY);
         ModCapabilities.sync(player);
+    }
+
+    @SubscribeEvent
+    public static void onLivingHurt(LivingHurtEvent event) {
+        if (!(event.getEntity() instanceof Player player)) {
+            return;
+        }
+        boolean vamp = player.getCapability(ModCapabilities.VAMPIRE_CAP).map(PlayerVampireData::isVampire).orElse(false);
+        if (!vamp) {
+            return;
+        }
+        if (event.getSource().is(DamageTypeTags.IS_DROWNING)) {
+            event.setCanceled(true);
+        }
     }
 
     private static void burnInSunlight(Player player) {
@@ -241,11 +289,13 @@ public class ModPlayerEvents {
         if (!player.level().canSeeSky(player.blockPosition())) {
             return;
         }
+        if (!player.getInventory().getArmor(3).isEmpty()) {
+            return;
+        }
         if (player.getLightLevelDependentMagicValue() <= 0.5F) {
             return;
         }
         server.sendParticles(ParticleTypes.SMOKE, player.getX(), player.getY() + player.getBbHeight() * 0.6D, player.getZ(),
                 2, 0.2D, 0.2D, 0.2D, 0.0D);
-        server.playSound(null, player.blockPosition(), net.minecraft.sounds.SoundEvents.FIRE_EXTINGUISH, net.minecraft.sounds.SoundSource.PLAYERS, 0.4F, 1.2F);
     }
 }

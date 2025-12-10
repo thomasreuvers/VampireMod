@@ -31,6 +31,16 @@ public class BloodOverlay {
     }
 
     @SubscribeEvent
+    public static void hideAir(RenderGuiOverlayEvent.Pre event) {
+        if (!event.getOverlay().id().equals(VanillaGuiOverlay.AIR_LEVEL.id())) return;
+        Player p = Minecraft.getInstance().player;
+        if (p == null) return;
+        if (isVampire(p)) {
+            event.setCanceled(true);
+        }
+    }
+
+    @SubscribeEvent
     public static void renderBlood(RenderGuiOverlayEvent.Post event) {
         if (!event.getOverlay().id().equals(VanillaGuiOverlay.HOTBAR.id())) {
             return;

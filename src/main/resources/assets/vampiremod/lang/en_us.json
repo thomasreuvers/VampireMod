@@ -2,5 +2,16 @@
   "effect.vampiremod.vampirism_bite": "Vampirism",
   "effect.vampiremod.sunburn": "Sunburn",
   "effect.vampiremod.vampiric_weakness": "Vampiric Weakness",
-  "commands.vampire.set": "Set vampire state for %s to %s"
+  "commands.vampire.set": "Set vampire state for %s to %s",
+  "key.categories.vampiremod.abilities": "Vampire Abilities",
+  "key.vampiremod.ability_whee": "Ability Wheel",
+  "key.vampiremod.ability_activate": "Activate Ability",
+  "screen.vampiremod.ability_selection.title": "Ability Selection",
+  "screen.vampiremod.ability_selection.empty": "No abilities unlocked",
+  "screen.vampiremod.ability_selection.cooldown": "Cooldown: %ss",
+  "screen.vampiremod.ability_selection.blood_cost": "Blood Cost: %s",
+  "screen.vampiremod.ability_selection.hint": "Left click to set active. Press V to use the active ability.",
+  "ability.vampiremod.bat_transformation": "Bat Transformation",
+  "ability.vampiremod.invisibility": "Invisibility",
+  "overlay.vampiremod.cooldown.label": "Cooldown"
 }

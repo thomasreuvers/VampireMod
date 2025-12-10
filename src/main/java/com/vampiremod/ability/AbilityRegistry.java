@@ -26,7 +26,7 @@ public class AbilityRegistry {
     // Register all abilities here
     public static final Ability BAT_TRANSFORMATION = register(new BatTransformationAbility());
     public static final Ability INVISIBILITY = register(new InvisibilityAbility(
-            new ResourceLocation("vampiremod", "invisibility")
+            new ResourceLocation(VampireMod.MOD_ID, "invisibility")
     ));
 
     /**

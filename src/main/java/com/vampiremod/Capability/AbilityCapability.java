@@ -10,6 +10,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 
+import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -18,6 +19,8 @@ public class AbilityCapability implements IAbilityCapability {
     private final Map<ResourceLocation, AbilityInstance> abilities = new HashMap<>();
     private int abilityPoints = 0;
     private boolean batForm;
+    @Nullable
+    private ResourceLocation activeAbility;
 
     public AbilityCapability() {
         // Ensure instances exist for every registered ability so unlock state persists cleanly.
@@ -67,6 +70,16 @@ public class AbilityCapability implements IAbilityCapability {
     }
 
     @Override
+    public @Nullable ResourceLocation getActiveAbility() {
+        return activeAbility;
+    }
+
+    @Override
+    public void setActiveAbility(@Nullable ResourceLocation id) {
+        this.activeAbility = id;
+    }
+
+    @Override
     public int getAbilityPoints() {
         return abilityPoints;
     }
@@ -90,6 +103,9 @@ public class AbilityCapability implements IAbilityCapability {
         CompoundTag tag = new CompoundTag();
         tag.putInt("points", abilityPoints);
         tag.putBoolean("batForm", batForm);
+        if (activeAbility != null) {
+            tag.putString("activeAbility", activeAbility.toString());
+        }
 
         CompoundTag abilitiesTag = new CompoundTag();
         abilities.forEach((id, instance) -> {
@@ -104,6 +120,11 @@ public class AbilityCapability implements IAbilityCapability {
     public void deserializeNBT(CompoundTag nbt) {
         abilityPoints = nbt.getInt("points");
         batForm = nbt.getBoolean("batForm");
+        if (nbt.contains("activeAbility")) {
+            activeAbility = new ResourceLocation(nbt.getString("activeAbility"));
+        } else {
+            activeAbility = null;
+        }
 
         CompoundTag abilitiesTag = nbt.getCompound("abilities");
         for (String key : abilitiesTag.getAllKeys()) {

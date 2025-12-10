@@ -29,6 +29,13 @@ public interface IAbilityCapability {
         setBatForm(null, batForm);
     }
 
+    /** Get the currently selected active ability id (may be null) */
+    @Nullable
+    ResourceLocation getActiveAbility();
+
+    /** Set the currently selected active ability id */
+    void setActiveAbility(@Nullable ResourceLocation id);
+
     /** Add an ability instance */
     void addAbility(AbilityInstance instance);
 

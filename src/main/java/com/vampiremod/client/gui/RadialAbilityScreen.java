@@ -3,7 +3,7 @@ package com.vampiremod.client.gui;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import com.vampiremod.ability.AbilityInstance;
-import com.vampiremod.ability.network.AbilityActivatePacket;
+import com.vampiremod.ability.network.AbilitySelectPacket;
 import com.vampiremod.ability.network.NetworkHandler;
 import com.vampiremod.capability.AbilityCapabilityProvider;
 import net.minecraft.client.Minecraft;
@@ -23,11 +23,12 @@ public class RadialAbilityScreen extends Screen {
 
     private final List<AbilityInstance> abilities = new ArrayList<>();
     private int selectedIndex = -1;
+    private int activeIndex = -1;
     private int mouseX;
     private int mouseY;
 
     public RadialAbilityScreen() {
-        super(Component.literal("Ability Selection"));
+        super(Component.translatable("screen.vampiremod.ability_selection.title"));
 
         // Load player's unlocked abilities
         Minecraft mc = Minecraft.getInstance();
@@ -36,6 +37,17 @@ public class RadialAbilityScreen extends Screen {
                     .ifPresent(cap -> cap.getAbilities().stream()
                             .filter(AbilityInstance::isUnlocked)
                             .forEach(abilities::add));
+            mc.player.getCapability(AbilityCapabilityProvider.ABILITY_CAPABILITY)
+                    .ifPresent(cap -> {
+                        if (cap.getActiveAbility() != null) {
+                            for (int i = 0; i < abilities.size(); i++) {
+                                if (abilities.get(i).getAbility().getId().equals(cap.getActiveAbility())) {
+                                    activeIndex = i;
+                                    break;
+                                }
+                            }
+                        }
+                    });
         }
     }
 
@@ -54,7 +66,8 @@ public class RadialAbilityScreen extends Screen {
                 0x40000000, 0x40000000);
 
         if (abilities.isEmpty()) {
-            graphics.drawCenteredString(this.font, "No abilities unlocked",
+            graphics.drawCenteredString(this.font,
+                    Component.translatable("screen.vampiremod.ability_selection.empty").getString(),
                     this.width / 2, this.height / 2, 0xFFFFFF);
             return;
         }
@@ -108,8 +121,9 @@ public class RadialAbilityScreen extends Screen {
             double endAngle = (i + 1) * sliceAngle - Math.PI / 2;
 
             boolean selected = i == selectedIndex;
-            int color = selected ? 0xFFFF4444 : 0xFF444444;
-            int alpha = selected ? 200 : 150;
+            boolean active = i == activeIndex;
+            int color = selected ? 0xFFFFAA44 : active ? 0xFF55AAFF : 0xFF444444;
+            int alpha = selected || active ? 220 : 150;
 
             renderSlice(poseStack, centerX, centerY, INNER_RADIUS, OUTER_RADIUS,
                     startAngle, endAngle, color, alpha);
@@ -120,10 +134,10 @@ public class RadialAbilityScreen extends Screen {
             int textY = centerY + (int) ((double) (INNER_RADIUS + OUTER_RADIUS) / 2 * Math.sin(midAngle));
 
             AbilityInstance ability = abilities.get(i);
-            String abilityName = ability.getAbility().getId().getPath();
+            String abilityName = getAbilityName(ability);
 
             graphics.drawCenteredString(this.font, abilityName.substring(0, Math.min(3, abilityName.length())).toUpperCase(),
-                    textX, textY - 4, selected ? 0xFFFFFF : 0xAAAAAA);
+                    textX, textY - 4, selected ? 0xFFFFFF : (active ? 0x99CCFF : 0xAAAAAA));
         }
 
         // Draw center circle
@@ -205,22 +219,28 @@ public class RadialAbilityScreen extends Screen {
         int infoX = this.width / 2;
         int infoY = 20;
 
-        String name = ability.getAbility().getId().getPath();
+        String name = getAbilityName(ability);
         graphics.drawCenteredString(this.font, name, infoX, infoY, 0xFFFFFF);
 
-        String cooldown = "Cooldown: " + (ability.getCooldownRemaining() / 20) + "s";
+        String cooldown = Component.translatable("screen.vampiremod.ability_selection.cooldown",
+                ability.getCooldownRemaining() / 20).getString();
         graphics.drawCenteredString(this.font, cooldown, infoX, infoY + 12, 0xAAAAAA);
 
-        String bloodCost = "Blood Cost: " + ability.getAbility().getBloodCost();
+        String bloodCost = Component.translatable("screen.vampiremod.ability_selection.blood_cost",
+                ability.getAbility().getBloodCost()).getString();
         graphics.drawCenteredString(this.font, bloodCost, infoX, infoY + 24, 0xFF4444);
+
+        String hint = Component.translatable("screen.vampiremod.ability_selection.hint").getString();
+        graphics.drawCenteredString(this.font, hint, infoX, infoY + 40, 0xCCCCCC);
     }
 
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
         if (button == 0 && selectedIndex >= 0 && selectedIndex < abilities.size()) {
-            // Activate selected ability
+            // Select active ability
             AbilityInstance selected = abilities.get(selectedIndex);
-            NetworkHandler.sendToServer(new AbilityActivatePacket(selected.getAbility().getId()));
+            NetworkHandler.sendToServer(new AbilitySelectPacket(selected.getAbility().getId()));
+            activeIndex = selectedIndex;
             this.onClose();
             return true;
         }
@@ -232,5 +252,14 @@ public class RadialAbilityScreen extends Screen {
         // Close when R is released
         this.onClose();
         return true;
+    }
+
+    private String getAbilityName(AbilityInstance ability) {
+        String key = "ability." + ability.getAbility().getId().getNamespace() + "." + ability.getAbility().getId().getPath();
+        String translated = Component.translatable(key).getString();
+        if (!translated.equals(key)) {
+            return translated;
+        }
+        return ability.getAbility().getId().getPath();
     }
 }
