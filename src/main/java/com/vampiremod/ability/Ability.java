@@ -30,4 +30,11 @@ public interface Ability {
 
     /** Load ability-specific data */
     void load(CompoundTag tag);
+
+    /**
+     * Per-tick hook for abilities that need to maintain state.
+     * Default is no-op.
+     */
+    default void tick(Player player, AbilityInstance instance) {
+    }
 }

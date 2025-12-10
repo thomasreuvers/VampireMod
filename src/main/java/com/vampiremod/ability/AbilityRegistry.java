@@ -1,6 +1,7 @@
 package com.vampiremod.ability;
 
 import com.vampiremod.VampireMod;
+import com.vampiremod.ability.impl.BatTransformationAbility;
 import com.vampiremod.ability.impl.InvisibilityAbility;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
@@ -23,6 +24,7 @@ public class AbilityRegistry {
     private static final Map<ResourceLocation, Ability> ABILITIES = new HashMap<>();
 
     // Register all abilities here
+    public static final Ability BAT_TRANSFORMATION = register(new BatTransformationAbility());
     public static final Ability INVISIBILITY = register(new InvisibilityAbility(
             new ResourceLocation("vampiremod", "invisibility")
     ));

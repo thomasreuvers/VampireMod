@@ -12,6 +12,7 @@ public class AbilityInstance {
     private int cooldownRemaining;
     private int level;
     private boolean unlocked;
+    private CompoundTag data = new CompoundTag();
 
     public AbilityInstance(Ability ability) {
         this.ability = ability;
@@ -66,12 +67,17 @@ public class AbilityInstance {
         return unlocked;
     }
 
+    public CompoundTag getData() {
+        return data;
+    }
+
     public CompoundTag save() {
         CompoundTag tag = new CompoundTag();
         tag.putString("ability", ability.getId().toString());
         tag.putInt("cooldown", cooldownRemaining);
         tag.putInt("level", level);
         tag.putBoolean("unlocked", unlocked);
+        tag.put("data", data.copy());
         ability.save(tag);
         return tag;
     }
@@ -80,6 +86,11 @@ public class AbilityInstance {
         cooldownRemaining = tag.getInt("cooldown");
         level = tag.getInt("level");
         unlocked = tag.getBoolean("unlocked");
+        if (tag.contains("data")) {
+            data = tag.getCompound("data");
+        } else {
+            data = new CompoundTag();
+        }
         ability.load(tag);
     }
 }

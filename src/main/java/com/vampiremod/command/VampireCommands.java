@@ -182,7 +182,7 @@ public class VampireCommands {
             // Sync to client if target is a server player
             if (target instanceof ServerPlayer serverPlayer) {
                 NetworkHandler.sendToPlayer(
-                        new AbilitySyncPacket(cap.serializeNBT()),
+                        new AbilitySyncPacket(target.getId(), cap.serializeNBT()),
                         serverPlayer
                 );
             }
@@ -240,7 +240,7 @@ public class VampireCommands {
                 // Sync to client
                 if (target instanceof ServerPlayer serverPlayer) {
                     NetworkHandler.sendToPlayer(
-                            new AbilitySyncPacket(cap.serializeNBT()),
+                            new AbilitySyncPacket(target.getId(), cap.serializeNBT()),
                             serverPlayer
                     );
                 }
@@ -264,7 +264,7 @@ public class VampireCommands {
             // Sync to client
             if (target instanceof ServerPlayer serverPlayer) {
                 NetworkHandler.sendToPlayer(
-                        new AbilitySyncPacket(cap.serializeNBT()),
+                        new AbilitySyncPacket(target.getId(), cap.serializeNBT()),
                         serverPlayer
                 );
             }
@@ -289,7 +289,7 @@ public class VampireCommands {
             // Sync to client
             if (target instanceof ServerPlayer serverPlayer) {
                 NetworkHandler.sendToPlayer(
-                        new AbilitySyncPacket(cap.serializeNBT()),
+                        new AbilitySyncPacket(target.getId(), cap.serializeNBT()),
                         serverPlayer
                 );
             }

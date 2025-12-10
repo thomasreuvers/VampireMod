@@ -3,6 +3,8 @@ package com.vampiremod.capability;
 import com.vampiremod.ability.AbilityInstance;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 
@@ -15,6 +17,17 @@ public interface IAbilityCapability {
 
     /** Get specific ability instance */
     AbilityInstance getAbility(ResourceLocation id);
+
+    /** Whether the player is currently transformed into a bat */
+    boolean isBatForm();
+
+    /** Set bat transformation flag */
+    void setBatForm(@Nullable Player player, boolean batForm);
+
+    /** Convenience overload for contexts without an available player reference */
+    default void setBatForm(boolean batForm) {
+        setBatForm(null, batForm);
+    }
 
     /** Add an ability instance */
     void addAbility(AbilityInstance instance);

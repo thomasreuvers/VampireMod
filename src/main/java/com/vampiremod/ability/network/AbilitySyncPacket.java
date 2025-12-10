@@ -13,24 +13,39 @@ import java.util.function.Supplier;
  * Packet sent from server to client to sync ability data
  */
 public class AbilitySyncPacket {
+    private final int entityId;
     private final CompoundTag data;
 
-    public AbilitySyncPacket(CompoundTag data) {
+    public AbilitySyncPacket(int entityId, CompoundTag data) {
+        this.entityId = entityId;
         this.data = data;
     }
 
     public void encode(FriendlyByteBuf buf) {
+        buf.writeVarInt(entityId);
         buf.writeNbt(data);
     }
 
     public static AbilitySyncPacket decode(FriendlyByteBuf buf) {
-        return new AbilitySyncPacket(buf.readNbt());
+        int id = buf.readVarInt();
+        return new AbilitySyncPacket(id, buf.readNbt());
     }
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
-            Player player = Minecraft.getInstance().player;
-            if (player != null) {
+            var mc = Minecraft.getInstance();
+            if (mc.level == null) {
+                return;
+            }
+            Player player = null;
+            var entity = mc.level.getEntity(entityId);
+            if (entity instanceof Player p) {
+                player = p;
+            } else if (mc.player != null && mc.player.getId() == entityId) {
+                player = mc.player;
+            }
+
+            if (player != null && data != null) {
                 player.getCapability(AbilityCapabilityProvider.ABILITY_CAPABILITY)
                         .ifPresent(cap -> cap.deserializeNBT(data));
             }

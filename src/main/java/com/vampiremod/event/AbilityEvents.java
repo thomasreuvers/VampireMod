@@ -25,6 +25,7 @@ public class AbilityEvents {
                 .ifPresent(cap -> {
                     for (AbilityInstance instance : cap.getAbilities()) {
                         instance.tick();
+                        instance.getAbility().tick(event.player, instance);
                     }
                 });
     }
@@ -47,9 +48,4 @@ public class AbilityEvents {
                     });
         }
     }
-
-    /**
-     * Initialize abilities for new players
-     */
-    // Login handling moved to AbilityCapabilityEvents for centralization
 }

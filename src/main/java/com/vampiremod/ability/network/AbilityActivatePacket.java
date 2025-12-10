@@ -34,7 +34,8 @@ public class AbilityActivatePacket {
                             AbilityInstance instance = cap.getAbility(abilityId);
                             if (instance != null && instance.isUnlocked()) {
                                 if (instance.activate(player)) {
-                                    NetworkHandler.sendToPlayer(new AbilitySyncPacket(cap.serializeNBT()), player);
+                                    NetworkHandler.sendToTrackingAndSelf(player,
+                                            new AbilitySyncPacket(player.getId(), cap.serializeNBT()));
                                 }
                             }
                         });

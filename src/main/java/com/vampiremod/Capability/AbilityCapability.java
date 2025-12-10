@@ -3,8 +3,12 @@ package com.vampiremod.capability;
 import com.vampiremod.ability.Ability;
 import com.vampiremod.ability.AbilityInstance;
 import com.vampiremod.ability.AbilityRegistry;
+import com.vampiremod.ability.network.AbilitySyncPacket;
+import com.vampiremod.ability.network.NetworkHandler;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -13,6 +17,7 @@ import java.util.Map;
 public class AbilityCapability implements IAbilityCapability {
     private final Map<ResourceLocation, AbilityInstance> abilities = new HashMap<>();
     private int abilityPoints = 0;
+    private boolean batForm;
 
     public AbilityCapability() {
         // Ensure instances exist for every registered ability so unlock state persists cleanly.
@@ -27,6 +32,26 @@ public class AbilityCapability implements IAbilityCapability {
     @Override
     public AbilityInstance getAbility(ResourceLocation id) {
         return abilities.get(id);
+    }
+
+    @Override
+    public boolean isBatForm() {
+        return batForm;
+    }
+
+    @Override
+    public void setBatForm(Player player, boolean batForm) {
+        if (this.batForm == batForm) {
+            return;
+        }
+
+        this.batForm = batForm;
+        if (player != null) {
+            if (!player.level().isClientSide) {
+                player.refreshDimensions();
+            }
+            sync(player);
+        }
     }
 
     @Override
@@ -64,6 +89,7 @@ public class AbilityCapability implements IAbilityCapability {
     public CompoundTag serializeNBT() {
         CompoundTag tag = new CompoundTag();
         tag.putInt("points", abilityPoints);
+        tag.putBoolean("batForm", batForm);
 
         CompoundTag abilitiesTag = new CompoundTag();
         abilities.forEach((id, instance) -> {
@@ -77,6 +103,7 @@ public class AbilityCapability implements IAbilityCapability {
     @Override
     public void deserializeNBT(CompoundTag nbt) {
         abilityPoints = nbt.getInt("points");
+        batForm = nbt.getBoolean("batForm");
 
         CompoundTag abilitiesTag = nbt.getCompound("abilities");
         for (String key : abilitiesTag.getAllKeys()) {
@@ -93,5 +120,12 @@ public class AbilityCapability implements IAbilityCapability {
 
         // Add any new abilities introduced after this save
         ensureAbilitiesRegistered();
+    }
+
+    private void sync(Player player) {
+        if (player instanceof ServerPlayer serverPlayer) {
+            NetworkHandler.sendToTrackingAndSelf(serverPlayer,
+                    new AbilitySyncPacket(serverPlayer.getId(), serializeNBT()));
+        }
     }
 }

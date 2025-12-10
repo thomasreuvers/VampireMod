@@ -13,6 +13,8 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.GameRules;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingHealEvent;
@@ -188,6 +190,8 @@ public class ModPlayerEvents {
             return;
         }
 
+        spawnSunSizzle(player);
+
         var helmet = player.getInventory().getArmor(3);
         if (!helmet.isEmpty()) {
             if (player.tickCount % HELMET_DAMAGE_INTERVAL == 0) {
@@ -225,5 +229,23 @@ public class ModPlayerEvents {
             event.setCanceled(true);
             player.setHealth(1.0F);
         }
+    }
+
+    public static void spawnSunSizzle(Player player) {
+        if (!(player.level() instanceof ServerLevel server)) {
+            return;
+        }
+        if (!player.level().isDay()) {
+            return;
+        }
+        if (!player.level().canSeeSky(player.blockPosition())) {
+            return;
+        }
+        if (player.getLightLevelDependentMagicValue() <= 0.5F) {
+            return;
+        }
+        server.sendParticles(ParticleTypes.SMOKE, player.getX(), player.getY() + player.getBbHeight() * 0.6D, player.getZ(),
+                2, 0.2D, 0.2D, 0.2D, 0.0D);
+        server.playSound(null, player.blockPosition(), net.minecraft.sounds.SoundEvents.FIRE_EXTINGUISH, net.minecraft.sounds.SoundSource.PLAYERS, 0.4F, 1.2F);
     }
 }

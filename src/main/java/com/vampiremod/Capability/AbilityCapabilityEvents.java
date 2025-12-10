@@ -42,12 +42,32 @@ public class AbilityCapabilityEvents {
         }
     }
 
+    @SubscribeEvent
+    public static void onStartTracking(PlayerEvent.StartTracking event) {
+        if (!(event.getTarget() instanceof ServerPlayer target)) {
+            return;
+        }
+        if (!(event.getEntity() instanceof ServerPlayer watcher)) {
+            return;
+        }
+
+        target.getCapability(AbilityCapabilityProvider.ABILITY_CAPABILITY)
+                .ifPresent(cap -> {
+                    cap.ensureAbilitiesRegistered();
+                    NetworkHandler.sendToPlayer(
+                            new AbilitySyncPacket(target.getId(), cap.serializeNBT()), watcher);
+                });
+    }
+
     private static void sync(ServerPlayer player) {
         player.getCapability(AbilityCapabilityProvider.ABILITY_CAPABILITY)
                 .ifPresent(cap -> {
                     // Backfill any new abilities before syncing to avoid missing client entries
                     cap.ensureAbilitiesRegistered();
-                    NetworkHandler.sendToPlayer(new AbilitySyncPacket(cap.serializeNBT()), player);
+                    if (cap.isBatForm()) {
+                        player.refreshDimensions();
+                    }
+                    NetworkHandler.sendToPlayer(new AbilitySyncPacket(player.getId(), cap.serializeNBT()), player);
                 });
     }
 }

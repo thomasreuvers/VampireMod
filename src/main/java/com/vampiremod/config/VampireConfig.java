@@ -40,6 +40,7 @@ public class VampireConfig {
                 "minecraft:ender_dragon", "minecraft:wither", "minecraft:elder_guardian",
                 "minecraft:skeleton_horse", "minecraft:zombie_horse",
                 "minecraft:bat",
+                "minecraft:spider", "minecraft:cave_spider",
                 "vampiremod:vampire",
         };
         for (String id : blacklist) {
