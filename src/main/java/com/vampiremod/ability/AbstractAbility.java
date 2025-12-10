@@ -1,8 +1,13 @@
 package com.vampiremod.ability;
 
+import com.vampiremod.capability.ModCapabilities;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.player.Player;
+
+import java.util.Optional;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Abstract base implementation with common functionality
@@ -12,12 +17,19 @@ public class AbstractAbility implements Ability {
     protected final int cooldown;
     protected final int cost;
     protected final int bloodCost;
+    @Nullable
+    protected final SoundEvent activationSound;
 
     protected AbstractAbility(ResourceLocation id, int cooldown, int cost, int bloodCost) {
+        this(id, cooldown, cost, bloodCost, null);
+    }
+
+    protected AbstractAbility(ResourceLocation id, int cooldown, int cost, int bloodCost, @Nullable SoundEvent activationSound) {
         this.id = id;
         this.cooldown = cooldown;
         this.cost = cost;
         this.bloodCost = bloodCost;
+        this.activationSound = activationSound;
     }
 
     @Override
@@ -37,33 +49,35 @@ public class AbstractAbility implements Ability {
             return false;
         }
 
-        // Check blood cost - replace with your blood capability check
         return hasEnoughBlood(player, bloodCost);
     }
 
     protected boolean hasEnoughBlood(Player player, int amount) {
-        // Example: Replace with your actual blood capability
-        // return player.getCapability(YourBloodCapability.BLOOD).map(cap ->
-        //     cap.getBlood() >= amount
-        // ).orElse(false);
+        if (amount <= 0 || player.isCreative()) {
+            return true;
+        }
 
-        // For now, a placeholder
-        return true; // TODO: Implement with your blood system
+        return player.getCapability(ModCapabilities.VAMPIRE_CAP)
+                .map(cap -> cap.getBlood() >= amount)
+                .orElse(false);
     }
 
-    // Helper method to consume blood - replace with your system
+    // Helper method to consume blood from the player's vampire pool
     protected boolean consumeBlood(Player player, int amount) {
-        // Example: Replace with your actual blood capability
-        // return player.getCapability(YourBloodCapability.BLOOD).map(cap -> {
-        //     if (cap.getBlood() >= amount) {
-        //         cap.setBlood(cap.getBlood() - amount);
-        //         return true;
-        //     }
-        //     return false;
-        // }).orElse(false);
+        if (amount <= 0 || player.isCreative()) {
+            return true;
+        }
 
-        // For now, a placeholder
-        return true; // TODO: Implement with your blood system
+        return player.getCapability(ModCapabilities.VAMPIRE_CAP)
+                .map(cap -> {
+                    if (cap.getBlood() >= amount) {
+                        cap.setBlood(cap.getBlood() - amount);
+                        ModCapabilities.sync(player); // keep HUD in sync after spending blood
+                        return true;
+                    }
+                    return false;
+                })
+                .orElse(false);
     }
 
     @Override
@@ -88,5 +102,9 @@ public class AbstractAbility implements Ability {
 
     @Override
     public void load(CompoundTag tag) {
+    }
+
+    public Optional<SoundEvent> getActivationSound() {
+        return Optional.ofNullable(activationSound);
     }
 }

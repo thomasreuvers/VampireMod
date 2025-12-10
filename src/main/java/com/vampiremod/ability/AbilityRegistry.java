@@ -12,36 +12,48 @@ import net.minecraftforge.registries.RegistryObject;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
+/**
+ * Simple registry for abilities without using Forge's registry system
+ * This is easier and works perfectly fine for abilities
+ */
 public class AbilityRegistry {
-    public static final DeferredRegister<Ability> ABILITIES =
-            DeferredRegister.create(new ResourceLocation(VampireMod.MOD_ID, "abilities"), VampireMod.MOD_ID);
+    private static final Map<ResourceLocation, Ability> ABILITIES = new HashMap<>();
 
-    // Create registry key
-    public static final ResourceKey<Registry<Ability>> REGISTRY_KEY =
-            ResourceKey.createRegistryKey(new ResourceLocation(VampireMod.MOD_ID, "abilities"));
+    // Register all abilities here
+    public static final Ability INVISIBILITY = register(new InvisibilityAbility(
+            new ResourceLocation("vampiremod", "invisibility")
+    ));
 
-    private static IForgeRegistry<Ability> registry;
-
-    // Register abilities
-    public static final RegistryObject<Ability> INVISIBILITY = ABILITIES.register("invisibility",
-            () -> new InvisibilityAbility(new ResourceLocation(VampireMod.MOD_ID, "invisibility")));
-
-    public static void init() {
-        // Called during mod initialization
+    /**
+     * Register an ability
+     */
+    private static Ability register(Ability ability) {
+        ABILITIES.put(ability.getId(), ability);
+        return ability;
     }
 
+    /**
+     * Get an ability by ID
+     */
     public static Ability getAbility(ResourceLocation id) {
-        if (registry == null) {
-            registry = RegistryManager.ACTIVE.getRegistry(REGISTRY_KEY);
-        }
-        return registry != null ? registry.getValue(id) : null;
+        return ABILITIES.get(id);
     }
 
+    /**
+     * Get all registered abilities
+     */
     public static Collection<Ability> getAllAbilities() {
-        if (registry == null) {
-            registry = RegistryManager.ACTIVE.getRegistry(REGISTRY_KEY);
-        }
-        return registry != null ? registry.getValues() : Collections.emptyList();
+        return ABILITIES.values();
+    }
+
+    /**
+     * Initialize the registry (called from main mod class)
+     */
+    public static void init() {
+        // This just ensures the class is loaded and static initializers run
+        // All abilities are registered in the static block above
     }
 }

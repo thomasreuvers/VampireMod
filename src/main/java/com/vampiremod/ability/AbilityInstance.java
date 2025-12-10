@@ -45,6 +45,11 @@ public class AbilityInstance {
         boolean success = ability.execute(player, this);
         if (success) {
             cooldownRemaining = ability.getCooldown();
+            if (ability instanceof AbstractAbility abstractAbility) {
+                abstractAbility.getActivationSound().ifPresent(sound ->
+                        player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
+                                sound, net.minecraft.sounds.SoundSource.PLAYERS, 1.0F, 1.0F));
+            }
         }
         return success;
     }

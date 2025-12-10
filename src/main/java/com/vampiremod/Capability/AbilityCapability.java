@@ -14,6 +14,11 @@ public class AbilityCapability implements IAbilityCapability {
     private final Map<ResourceLocation, AbilityInstance> abilities = new HashMap<>();
     private int abilityPoints = 0;
 
+    public AbilityCapability() {
+        // Ensure instances exist for every registered ability so unlock state persists cleanly.
+        ensureAbilitiesRegistered();
+    }
+
     @Override
     public Collection<AbilityInstance> getAbilities() {
         return abilities.values();
@@ -27,6 +32,13 @@ public class AbilityCapability implements IAbilityCapability {
     @Override
     public void addAbility(AbilityInstance instance) {
         abilities.put(instance.getAbility().getId(), instance);
+    }
+
+    @Override
+    public void ensureAbilitiesRegistered() {
+        AbilityRegistry.getAllAbilities().forEach(ability -> {
+            abilities.computeIfAbsent(ability.getId(), id -> new AbilityInstance(ability));
+        });
     }
 
     @Override
@@ -78,5 +90,8 @@ public class AbilityCapability implements IAbilityCapability {
                 abilities.put(id, instance);
             }
         }
+
+        // Add any new abilities introduced after this save
+        ensureAbilitiesRegistered();
     }
 }

@@ -1,8 +1,11 @@
 package com.vampiremod;
 
+import com.vampiremod.ability.AbilityRegistry;
+import com.vampiremod.ability.network.NetworkHandler;
 import com.vampiremod.capability.ModCapabilities;
 import com.vampiremod.effect.ModEffects;
 import com.vampiremod.entity.ModEntities;
+import com.vampiremod.event.ModEvents;
 import com.vampiremod.sound.ModSounds;
 import com.vampiremod.network.ModNetworking;
 import net.minecraft.world.entity.Entity;
@@ -22,6 +25,9 @@ public class VampireMod {
         ModSounds.register(modBus);
         modBus.addListener(ModCapabilities::register);
         modBus.addListener(ModEvents::registerAttributes);
+
+        AbilityRegistry.init();
+        NetworkHandler.register();
 
         ModNetworking.register();
 

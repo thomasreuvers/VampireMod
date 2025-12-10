@@ -19,6 +19,9 @@ public interface IAbilityCapability {
     /** Add an ability instance */
     void addAbility(AbilityInstance instance);
 
+    /** Ensure all registered abilities have an instance (locked by default) */
+    void ensureAbilitiesRegistered();
+
     /** Get available ability points */
     int getAbilityPoints();
 

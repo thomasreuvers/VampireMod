@@ -3,6 +3,7 @@ package com.vampiremod.event;
 import com.vampiremod.capability.ModCapabilities;
 import com.vampiremod.capability.PlayerVampireData;
 import com.vampiremod.effect.ModEffects;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -11,8 +12,10 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.GameRules;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
+import net.minecraftforge.event.entity.living.LivingHealEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -23,6 +26,7 @@ import java.util.UUID;
 public class ModPlayerEvents {
     public static final String SUN_TICK_KEY = "vampiremod.sunburn";
     public static final String SUN_EXPOSURE_KEY = "vampiremod.sun_exposure";
+    private static final String BLOOD_HEAL_KEY = "vampiremod.blood_heal";
     private static final int SUN_EXPOSURE_THRESHOLD = 200;
     private static final int SUN_EXPOSURE_CAP = 400;
     private static final int HELMET_DAMAGE_INTERVAL = 40;
@@ -41,6 +45,7 @@ public class ModPlayerEvents {
             boolean vamp = cap.isVampire();
             handleSpeed(player, vamp);
             if (vamp) {
+                keepHungerSatisfied(player);
                 burnInSunlight(player);
                 applyBuffs(player, cap);
                 regenFromBlood(player, cap);
@@ -59,6 +64,29 @@ public class ModPlayerEvents {
     public static void onRespawn(PlayerEvent.PlayerRespawnEvent event) {
         ModCapabilities.sync(event.getEntity());
         event.getEntity().getCapability(ModCapabilities.VAMPIRE_CAP).ifPresent(cap -> cap.setBlood(20));
+    }
+
+    @SubscribeEvent
+    public static void onLivingHeal(LivingHealEvent event) {
+        Entity entity = event.getEntity();
+        if (!(entity instanceof Player player)) return;
+
+        boolean vamp = player.getCapability(ModCapabilities.VAMPIRE_CAP).map(PlayerVampireData::isVampire).orElse(false);
+        if (!vamp) return;
+
+        // Allow our own blood-based healing through
+        if (player.getPersistentData().getBoolean(BLOOD_HEAL_KEY)) {
+            return;
+        }
+
+        // If this heal looks like vanilla food-based regen, cancel it.
+        if (player.level().getGameRules().getBoolean(GameRules.RULE_NATURAL_REGENERATION)) {
+            var food = player.getFoodData();
+            boolean isLikelyFoodRegen = food.getFoodLevel() >= 18 && !player.hasEffect(MobEffects.REGENERATION) && event.getAmount() <= 1.0F;
+            if (isLikelyFoodRegen) {
+                event.setCanceled(true);
+            }
+        }
     }
 
     private static void handleSpeed(Player player, boolean vamp) {
@@ -97,6 +125,17 @@ public class ModPlayerEvents {
         player.removeEffect(MobEffects.JUMP);
     }
 
+    private static void keepHungerSatisfied(Player player) {
+        var food = player.getFoodData();
+        if (food.getFoodLevel() < 20) {
+            food.setFoodLevel(20);
+        }
+        if (food.getSaturationLevel() < 20.0F) {
+            food.setSaturation(20.0F);
+        }
+        food.setExhaustion(0.0F);
+    }
+
     private static void clearSunburn(Player player) {
         player.getPersistentData().putInt(SUN_EXPOSURE_KEY, 0);
         player.removeEffect(ModEffects.SUNBURN.get());
@@ -119,7 +158,10 @@ public class ModPlayerEvents {
         if (cap.getBlood() < 1f) return;
 
         cap.setBlood(cap.getBlood() - 1f); // consume half drop
+        // Mark this heal so we don't cancel it in the global heal handler
+        player.getPersistentData().putBoolean(BLOOD_HEAL_KEY, true);
         player.heal(1.0F);
+        player.getPersistentData().remove(BLOOD_HEAL_KEY);
         ModCapabilities.sync(player);
     }
 

@@ -1,4 +1,4 @@
-package com.vampiremod;
+package com.vampiremod.event;
 
 import com.vampiremod.entity.ModEntities;
 import net.minecraft.world.entity.monster.Vindicator;

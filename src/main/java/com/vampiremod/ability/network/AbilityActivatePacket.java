@@ -1,6 +1,7 @@
 package com.vampiremod.ability.network;
 
 import com.vampiremod.ability.AbilityInstance;
+import com.vampiremod.ability.network.AbilitySyncPacket;
 import com.vampiremod.capability.AbilityCapabilityProvider;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
@@ -32,7 +33,9 @@ public class AbilityActivatePacket {
                         .ifPresent(cap -> {
                             AbilityInstance instance = cap.getAbility(abilityId);
                             if (instance != null && instance.isUnlocked()) {
-                                instance.activate(player);
+                                if (instance.activate(player)) {
+                                    NetworkHandler.sendToPlayer(new AbilitySyncPacket(cap.serializeNBT()), player);
+                                }
                             }
                         });
             }
