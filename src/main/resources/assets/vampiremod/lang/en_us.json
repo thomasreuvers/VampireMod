@@ -13,5 +13,6 @@
   "screen.vampiremod.ability_selection.hint": "Left click to set active. Press V to use the active ability.",
   "ability.vampiremod.bat_transformation": "Bat Transformation",
   "ability.vampiremod.invisibility": "Invisibility",
+  "ability.vampiremod.teleport": "Teleport",
   "overlay.vampiremod.cooldown.label": "Cooldown"
 }

@@ -31,5 +31,10 @@
       "vampiremod:vampire_drink2",
       "vampiremod:vampire_drink3"
     ]
+  },
+  "bat_chirping": {
+    "sounds": [
+      "vampiremod:bat_chirping"
+    ]
   }
 }

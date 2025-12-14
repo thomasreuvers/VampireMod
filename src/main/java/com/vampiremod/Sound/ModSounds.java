@@ -17,6 +17,7 @@ public class ModSounds {
     public static final RegistryObject<SoundEvent> VAMPIRE_DEATH = registerSoundEvent("entity.vampire.death");
     public static final RegistryObject<SoundEvent> VAMPIRE_STEP = registerSoundEvent("entity.vampire.step");
     public static final RegistryObject<SoundEvent> VAMPIRE_DRINK = registerSoundEvent("entity.vampire.drink");
+    public static final RegistryObject<SoundEvent> BAT_CHIRPING = registerSoundEvent("bat_chirping");
 
     private static RegistryObject<SoundEvent> registerSoundEvent(String name) {
         ResourceLocation location = ResourceLocation.fromNamespaceAndPath(VampireMod.MOD_ID, name);

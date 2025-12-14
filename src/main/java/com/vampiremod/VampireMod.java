@@ -7,6 +7,7 @@ import com.vampiremod.effect.ModEffects;
 import com.vampiremod.entity.ModEntities;
 import com.vampiremod.event.ModEvents;
 import com.vampiremod.sound.ModSounds;
+import com.vampiremod.particle.ModParticles;
 import com.vampiremod.network.ModNetworking;
 import net.minecraft.world.entity.Entity;
 import net.minecraftforge.common.MinecraftForge;
@@ -23,6 +24,7 @@ public class VampireMod {
         ModEntities.register(modBus);
         ModEffects.register(modBus);
         ModSounds.register(modBus);
+        ModParticles.register(modBus);
         modBus.addListener(ModCapabilities::register);
         modBus.addListener(ModEvents::registerAttributes);
 

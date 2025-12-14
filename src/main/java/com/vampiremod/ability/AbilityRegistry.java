@@ -3,16 +3,10 @@ package com.vampiremod.ability;
 import com.vampiremod.VampireMod;
 import com.vampiremod.ability.impl.BatTransformationAbility;
 import com.vampiremod.ability.impl.InvisibilityAbility;
-import net.minecraft.core.Registry;
-import net.minecraft.resources.ResourceKey;
+import com.vampiremod.ability.impl.TeleportAbility;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.IForgeRegistry;
-import net.minecraftforge.registries.RegistryManager;
-import net.minecraftforge.registries.RegistryObject;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,6 +22,7 @@ public class AbilityRegistry {
     public static final Ability INVISIBILITY = register(new InvisibilityAbility(
             new ResourceLocation(VampireMod.MOD_ID, "invisibility")
     ));
+    public static final Ability TELEPORT = register(new TeleportAbility());
 
     /**
      * Register an ability

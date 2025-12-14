@@ -37,6 +37,12 @@ public class NetworkHandler {
                 .decoder(AbilitySelectPacket::decode)
                 .consumerMainThread(AbilitySelectPacket::handle)
                 .add();
+
+        INSTANCE.messageBuilder(TeleportRequestPacket.class, packetId++)
+                .encoder(TeleportRequestPacket::encode)
+                .decoder(TeleportRequestPacket::decode)
+                .consumerMainThread(TeleportRequestPacket::handle)
+                .add();
     }
 
     public static <MSG> void sendToServer(MSG message) {
